@@ -64,7 +64,7 @@ namespace FakeFileSystem.Unit.Tests.Services
             var pathParts = new string[] { "C:", "FakeDir" };
             var expected = new MemoryStream(Encoding.UTF8.GetBytes(string.Empty));
             var directoryComponent = DirectoryComponent.From("FakeDir");
-            var directoryInfo = new InMemoryDirectoryInfo(_fakeDir);
+            var directoryInfo = new InMemoryDirectoryInfo(_fakeDir, _pathServiceMock.Object);
             var fileComponent = new FileComponent(fileName, string.Empty);                
 
             _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(pathPartsWithFile);
@@ -93,7 +93,7 @@ namespace FakeFileSystem.Unit.Tests.Services
             var fileName = "FakeFile.txt";
             var pathPartsWithFile = new string[] { "C:", fileName };
             var pathParts = new string[] { "C:" };
-            var directoryInfo = new InMemoryDirectoryInfo(_root);
+            var directoryInfo = new InMemoryDirectoryInfo(_root, _pathServiceMock.Object);
             var fileComponent = new FileComponent(fileName, "Test Content");
 
             _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(pathPartsWithFile);
@@ -122,7 +122,7 @@ namespace FakeFileSystem.Unit.Tests.Services
             var fileContent = "Test Content";
             var pathPartsWithFile = new string[] { "C:", fileName };
             var pathParts = new string[] { "C:" };
-            var directoryInfo = new InMemoryDirectoryInfo(_root);
+            var directoryInfo = new InMemoryDirectoryInfo(_root, _pathServiceMock.Object);
             var fileComponent = new FileComponent(fileName, fileContent);
             var expected = fileContent;
 
@@ -152,7 +152,7 @@ namespace FakeFileSystem.Unit.Tests.Services
             var newFileContents = "Test content modified";
             var pathPartsWithFile = new string[] { "C:", fileName };
             var pathParts = new string[] { "C:" };
-            var directoryInfo = new InMemoryDirectoryInfo(_root);
+            var directoryInfo = new InMemoryDirectoryInfo(_root, _pathServiceMock.Object);
             var fileComponent = new FileComponent(fileName, fileContent);
             var expected = fileContent;
 

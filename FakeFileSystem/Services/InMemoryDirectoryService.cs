@@ -4,7 +4,6 @@ using FakeFileSystem.Interfaces.Models;
 using FakeFileSystem.Interfaces.Models.FileSystems;
 using FakeFileSystem.Interfaces.Services;
 using FakeFileSystem.Models.FileSystems;
-using System.Reflection.Metadata.Ecma335;
 
 namespace FakeFileSystem.Services
 {
@@ -94,7 +93,7 @@ namespace FakeFileSystem.Services
         {
             var directoryInfo = FindDirectory(path);
             var directory = directoryInfo.DirectoryComponent;
-            return new InMemoryDirectoryInfo(directory.Parent);
+            return new InMemoryDirectoryInfo(directory.Parent, _pathService);
         }
 
         public IEnumerable<string> GetFiles(string path)

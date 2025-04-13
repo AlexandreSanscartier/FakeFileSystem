@@ -1,5 +1,9 @@
-﻿using FakeFileSystem.Interfaces.Models;
+﻿using FakeFileSystem.Interfaces.Factories;
+using FakeFileSystem.Interfaces.Models;
+using FakeFileSystem.Interfaces.Services;
+using FakeFileSystem.Models;
 using FakeFileSystem.Models.FileSystems;
+using FakeFileSystem.Services;
 using Moq;
 using Xunit;
 
@@ -23,7 +27,10 @@ namespace FakeFileSystem.Unit.Tests.Models.FileSystems
             directoryComponentMock.Setup(x => x.Name).Returns(directoryComponentMockName);
             var directoryComponent = directoryComponentMock.Object;
 
-            var directoryInfoComponent = new InMemoryDirectoryInfo(directoryComponent);
+            var fileSystem = new FileSystem(directoryComponentParent);
+            var pathService = new InMemoryPathService(fileSystem);
+
+            var directoryInfoComponent = new InMemoryDirectoryInfo(directoryComponent, pathService);
             var expected = @"C:\Test";
 
             // Act

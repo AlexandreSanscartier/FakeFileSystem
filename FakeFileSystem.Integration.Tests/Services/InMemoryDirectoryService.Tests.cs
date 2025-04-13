@@ -25,7 +25,7 @@ namespace FakeFileSystem.Integration.Tests.Services
             _root = _directoryComponentFactory.Create("C:");
             _fileSystem = new FileSystem(_root);
             _pathService = new InMemoryPathService(_fileSystem);
-            _directoryInfoFactory = new InMemoryDirectoryInfoFactory();
+            _directoryInfoFactory = new InMemoryDirectoryInfoFactory(_pathService);
             _directoryService = new InMemoryDirectoryService(_directoryComponentFactory, _pathService, _fileSystem, _directoryInfoFactory);
         }
 

@@ -43,12 +43,12 @@ namespace FakeFileSystem
             _directoryComponentFactory = new DirectoryComponentFactory();
             _root = _directoryComponentFactory.Create("C:");
             _fileSystem = new FileSystem(_root);
-            _directoryInfoFactory = new InMemoryDirectoryInfoFactory();
             _fileComponentFactory = new FileComponentFactory();
             _memoryStreamFactory = new MemoryStreamFactory();
             _filePathFactory = new FilePathFactory();
 
             _pathService = new InMemoryPathService(_fileSystem);
+            _directoryInfoFactory = new InMemoryDirectoryInfoFactory(_pathService);
             _directoryService = new InMemoryDirectoryService(_directoryComponentFactory, _pathService, _fileSystem, _directoryInfoFactory);
             _fileService = new InMemoryFileService(_fileComponentFactory, _memoryStreamFactory, _directoryService, _pathService, _filePathFactory);
         }
@@ -58,12 +58,12 @@ namespace FakeFileSystem
             _directoryComponentFactory = new DirectoryComponentFactory();
             _root = _directoryComponentFactory.Create(rootFolder);
             _fileSystem = new FileSystem(_root);
-            _directoryInfoFactory = new InMemoryDirectoryInfoFactory();
             _fileComponentFactory = new FileComponentFactory();
             _memoryStreamFactory = new MemoryStreamFactory();
             _filePathFactory = new FilePathFactory();
 
             _pathService = new InMemoryPathService(_fileSystem);
+            _directoryInfoFactory = new InMemoryDirectoryInfoFactory(_pathService);
             _directoryService = new InMemoryDirectoryService(_directoryComponentFactory, _pathService, _fileSystem, _directoryInfoFactory);
             _fileService = new InMemoryFileService(_fileComponentFactory, _memoryStreamFactory, _directoryService, _pathService, _filePathFactory);
         }

@@ -1,5 +1,6 @@
 ﻿using FakeFileSystem.Interfaces.Models;
 using FakeFileSystem.Interfaces.Models.FileSystems;
+using FakeFileSystem.Interfaces.Services;
 
 namespace FakeFileSystem.Models.FileSystems
 {
@@ -7,16 +8,18 @@ namespace FakeFileSystem.Models.FileSystems
     {
         private readonly IDirectoryComponent _directoryComponent;
 
-        private string _fullPath = string.Empty;
+        private readonly IPathService _pathService;
+
+        public string FullPath { get; private set; }
 
         public IDirectoryComponent DirectoryComponent => _directoryComponent;
 
-        public InMemoryDirectoryInfo(IDirectoryComponent directoryComponent)
+        public InMemoryDirectoryInfo(IDirectoryComponent directoryComponent, IPathService pathService)
         {
+            _pathService = pathService;
             _directoryComponent = directoryComponent;
-            _fullPath = GenerateFullPath();
+            FullPath = GenerateFullPath();
         }
-        public string FullPath => _fullPath;
 
         private string GenerateFullPath()
         {
@@ -29,7 +32,7 @@ namespace FakeFileSystem.Models.FileSystems
             } while (currentPath is not null);
             pathParts.Reverse();
 
-            return Path.Combine(pathParts.ToArray());
+            return _pathService.CombinePath(pathParts.ToArray());
         }
     }
 }
