@@ -1,6 +1,9 @@
 <!-- https://dillinger.io/ for modifying the MD file and viewing changes in realtime -->
 
 # FakeFileSystem
+
+[![.NET](https://github.com/AlexandreSanscartier/FakeFileSystem/actions/workflows/dotnet.yml/badge.svg)](https://github.com/AlexandreSanscartier/FakeFileSystem/actions/workflows/dotnet.yml)
+
 ## _When you want to create an in memory filesystem... for tests... in C#_
 What do you get when you run into a problem that you could solve with an existing library, but decide you would rather have some fun and code it yourself? You get the FakeFileSystem, a virtual filesystem that lives in memory for testing code that requires access to a filesystem.
 
