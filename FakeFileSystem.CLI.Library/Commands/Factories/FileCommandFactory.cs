@@ -5,9 +5,9 @@ using FakeFileSystem.CLI.Interfaces.Commands.Models;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Factories
 {
-    public class FileCommandFactory : IFileCommandFactory
+    public sealed class FileCommandFactory : IFileCommandFactory
     {
-        IFileCommandParameters _fileCommandParameters;
+        private IFileCommandParameters _fileCommandParameters;
 
         public FileCommandFactory(IFileCommandParameters fileCommandParameters)
         {
@@ -32,7 +32,7 @@ namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Factories
 
         public void SetContent(string content)
         {
-            _fileCommandParameters.SetContents(content);
+            _fileCommandParameters.Contents = content;
         }
 
         public void SetFileCommandParameter(IFileCommandParameters fileCommandParaemeters)
@@ -42,7 +42,7 @@ namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Factories
 
         public void SetPath(string path)
         {
-            _fileCommandParameters.SetPath(path);
+            _fileCommandParameters.Path = path;
         }
 
         private ICommand BuildCreateFileCommand()

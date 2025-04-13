@@ -80,7 +80,7 @@ namespace FakeFileSystem.Services
             }
 
             var file = ExtractFileFromDirectory(directoryInfo, filePath.FileName);
-            file.SetContent(contents);
+            file.Content = contents;
         }
 
         private IFileComponent ExtractFileFromDirectory(IDirectoryInfo directoryInfo, string fileName)

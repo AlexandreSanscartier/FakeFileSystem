@@ -33,6 +33,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeFileSystem.CLI.Interfac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeFileSystem.CLI.ConsoleLibrary", "FakeFileSystem.CLI.Library\FakeFileSystem.CLI.ConsoleLibrary.csproj", "{7A354434-F4EA-2D2B-D5B4-C3773A8F521F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeFileSystem.Examples", "FakeFileSystem.Examples\FakeFileSystem.Examples.csproj", "{3B61B331-CBA6-440F-AE17-BC996CF41DB3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +71,10 @@ Global
 		{7A354434-F4EA-2D2B-D5B4-C3773A8F521F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A354434-F4EA-2D2B-D5B4-C3773A8F521F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A354434-F4EA-2D2B-D5B4-C3773A8F521F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B61B331-CBA6-440F-AE17-BC996CF41DB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B61B331-CBA6-440F-AE17-BC996CF41DB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B61B331-CBA6-440F-AE17-BC996CF41DB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B61B331-CBA6-440F-AE17-BC996CF41DB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +89,7 @@ Global
 		{EFC08B62-E225-5233-09F3-550EFD77F836} = {E28FF50A-8716-43B1-A967-EAA1DED642AF}
 		{CA211D97-E75F-58A6-FAEE-670EE5361BAF} = {DB58ED85-EC22-4B2E-AA4F-ACCEB4D22753}
 		{7A354434-F4EA-2D2B-D5B4-C3773A8F521F} = {DB58ED85-EC22-4B2E-AA4F-ACCEB4D22753}
+		{3B61B331-CBA6-440F-AE17-BC996CF41DB3} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6446AC28-3D7A-480F-BE5D-D8EE8428436D}

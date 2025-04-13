@@ -34,5 +34,17 @@ namespace FakeFileSystem.Models.FileSystems
 
             return _pathService.CombinePath(pathParts.ToArray());
         }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is InMemoryDirectoryInfo info &&
+                   FullPath == info.FullPath &&
+                   EqualityComparer<IDirectoryComponent>.Default.Equals(DirectoryComponent, info.DirectoryComponent);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(FullPath, DirectoryComponent);
+        }
     }
 }

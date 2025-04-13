@@ -3,9 +3,9 @@ using FakeFileSystem.Interfaces.Services;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Files
 {
-    public class FileExistsCommand : IFileCommand
+    public sealed class FileExistsCommand : IFileCommand
     {
-        IFileService _fileService;
+        private IFileService _fileService;
 
         private readonly string _path;
 

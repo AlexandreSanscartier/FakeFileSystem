@@ -3,7 +3,7 @@ using FakeFileSystem.Interfaces.Services;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Directories
 {
-    public class DeleteDirectoryCommand : IDirectoryCommand
+    public sealed class DeleteDirectoryCommand : IDirectoryCommand
     {
         private readonly string _path;
 

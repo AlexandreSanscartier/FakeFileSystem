@@ -1,20 +1,26 @@
-﻿using FakeFileSystem.Interfaces.Models;
+﻿using FakeFileSystem.Interfaces.Factories;
+using FakeFileSystem.Interfaces.Models;
+using FakeFileSystem.Interfaces.Models.FileSystems;
 
 namespace FakeFileSystem.Models
 {
-    public sealed class FileSystem : IFileSystem
+    public class FileSystem : IFileSystem
     {
-        private IDirectoryComponent _root;
+        private IDirectoryComponentFactory _directoryComponentFactory;
 
-        public IDirectoryComponent Root => _root;
+        private IFileSystemDirectorySeperator _fileSystemDirectorySeperator;
 
-        public char DirectorySeperator => '\\';
+        public IDirectoryComponent Root { get; set; }
 
-        public char AltDirectorySeperator => '/';
+        public char DirectorySeperator => _fileSystemDirectorySeperator.DirectorySeperator;
 
-        public FileSystem(IDirectoryComponent root)
+        public char AltDirectorySeperator => _fileSystemDirectorySeperator.AltDirectorySeperator;
+
+        public FileSystem(IDirectoryComponentFactory directoryComponentFactory, IFileSystemDirectorySeperator fileSystemDirectorySeperator) 
         {
-            _root = root;
+            _directoryComponentFactory = directoryComponentFactory;
+            _fileSystemDirectorySeperator = fileSystemDirectorySeperator;
+            Root = _directoryComponentFactory.Create("C:");
         }
     }
 }

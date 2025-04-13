@@ -3,7 +3,7 @@ using System.Text;
 
 namespace FakeFileSystem.Factories
 {
-    internal class MemoryStreamFactory : IMemoryStreamFactory
+    public class MemoryStreamFactory : IMemoryStreamFactory
     {
         public MemoryStream Create(string value)
         {

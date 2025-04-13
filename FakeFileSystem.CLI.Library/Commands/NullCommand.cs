@@ -2,7 +2,7 @@
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands
 {
-    public class NullCommand : ICommand
+    public sealed class NullCommand : ICommand
     {
         public void Execute()
         {

@@ -3,50 +3,30 @@ using FakeFileSystem.Interfaces.Services;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Models
 {
-    public class DirectoryCommandParameters : IDirectoryCommandParameters
+    public sealed class DirectoryCommandParameters : IDirectoryCommandParameters
     {
-        private IDirectoryService _directoryService;
+        public IDirectoryService DirectoryService { get; set; }
 
-        private IPathService _pathService;
+        public IPathService PathService { get; set; }
 
-        private string _directoryName;
+        public string DirectoryName { get; set; }
 
-        private string _path;
+        public string Path { get; set; }
+
+        public DirectoryCommandParameters(IDirectoryService directoryService, IPathService pathService)
+        {
+            DirectoryService = directoryService;
+            PathService = pathService;
+            DirectoryName = string.Empty;
+            Path = string.Empty;
+        }
 
         public DirectoryCommandParameters(IDirectoryService directoryService, IPathService pathService, string path, string directoryName)
         {
-            _directoryService = directoryService;
-            _pathService = pathService;
-            _path = path;
-            _directoryName = directoryName;
-        }
-
-        public IDirectoryService DirectoryService => _directoryService;
-
-        public IPathService PathService => _pathService;
-
-        public string DirectoryName => _directoryName;
-
-        public string Path => _path;
-
-        public void SetDirectoryName(string directoryName)
-        {
-            _directoryName = directoryName;
-        }
-
-        public void SetDirectoryService(IDirectoryService directoryService)
-        {
-            _directoryService = directoryService;
-        }
-
-        public void SetPath(string path)
-        {
-            _path = path;
-        }
-
-        public void SetPathService(IPathService pathService)
-        {
-            _pathService = pathService;
+            DirectoryService = directoryService;
+            PathService = pathService;
+            Path = path;
+            DirectoryName = directoryName;
         }
     }
 }

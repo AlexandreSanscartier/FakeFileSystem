@@ -1,4 +1,5 @@
 ﻿using FakeFileSystem.Interfaces.Models;
+using FakeFileSystem.Interfaces.Models.FileSystems;
 using FakeFileSystem.Interfaces.Services;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -7,19 +8,19 @@ namespace FakeFileSystem.Services
 {
     public class InMemoryPathService : IPathService
     {
-        private readonly IFileSystem _fileSystem;
+        private readonly IFileSystemDirectorySeperator _fileSystemDirectorySeperator;
 
         private readonly string _PathRootedRegex;
 
         private readonly string _PathFullyQualifiedRegex;
 
-        public char AltDirectorySeperator => _fileSystem.AltDirectorySeperator;
+        public char AltDirectorySeperator => _fileSystemDirectorySeperator.AltDirectorySeperator;
 
-        public char DirectorySeperator => _fileSystem.DirectorySeperator;
+        public char DirectorySeperator => _fileSystemDirectorySeperator.DirectorySeperator;
 
-        public InMemoryPathService(IFileSystem fileSystem)
+        public InMemoryPathService(IFileSystemDirectorySeperator fileSystemDirectorySeperator)
         {
-            _fileSystem = fileSystem;
+            _fileSystemDirectorySeperator = fileSystemDirectorySeperator;
             _PathRootedRegex = GeneratePathRootedRegex();
             _PathFullyQualifiedRegex = GeneratePathFullyQualifiedRegex();
         }
@@ -36,17 +37,17 @@ namespace FakeFileSystem.Services
 
         public string CombinePath(string[] pathParts)
         {
-            return string.Join(_fileSystem.DirectorySeperator, pathParts);
+            return string.Join(DirectorySeperator, pathParts);
         }
 
         public string CombinePath(string path1, string path2)
         {
-            return $"{ path1}{_fileSystem.DirectorySeperator}{path2}";
+            return $"{ path1}{DirectorySeperator}{path2}";
         }
 
         public string CombinePath(string path1, string path2, string path3)
         {
-            return $"{path1}{_fileSystem.DirectorySeperator}{path2}{_fileSystem.DirectorySeperator}{path3}";
+            return $"{path1}{DirectorySeperator}{path2}{DirectorySeperator}{path3}";
         }
 
         public bool EndsInDirectorySeperator(string path)
@@ -84,6 +85,15 @@ namespace FakeFileSystem.Services
             var fileNameWithoutExtension = string.Join('.', fileNameParts.SkipLast(1));
             return fileNameWithoutExtension;
         }
+        public string[] GetInvalidFileNameChars()
+        {
+            return [];
+        }
+
+        public string[] GetInvalidPathChars()
+        {
+            return [];
+        }
 
         public bool HasExtension(string fileName)
         {
@@ -102,7 +112,7 @@ namespace FakeFileSystem.Services
 
         public string[] SplitPath(string path)
         {
-            var delimiters = new char[] { _fileSystem.DirectorySeperator, _fileSystem.AltDirectorySeperator };
+            var delimiters = new char[] { DirectorySeperator, AltDirectorySeperator };
             return path.Split(delimiters);
         }
 
@@ -117,9 +127,9 @@ namespace FakeFileSystem.Services
             StringBuilder sb = new StringBuilder();
             sb.Clear();
             sb.Append(@"^(?:[a-zA-Z0-9\-]\:[");
-            sb.Append($"{Regex.Escape(_fileSystem.DirectorySeperator.ToString())}|{Regex.Escape(_fileSystem.AltDirectorySeperator.ToString())}]|");
-            sb.Append($"{Regex.Escape(_fileSystem.DirectorySeperator.ToString())}{Regex.Escape(_fileSystem.DirectorySeperator.ToString())}|");
-            sb.Append($"{Regex.Escape(_fileSystem.AltDirectorySeperator.ToString())}{Regex.Escape(_fileSystem.AltDirectorySeperator.ToString())})");
+            sb.Append($"{Regex.Escape(DirectorySeperator.ToString())}|{Regex.Escape(AltDirectorySeperator.ToString())}]|");
+            sb.Append($"{Regex.Escape(DirectorySeperator.ToString())}{Regex.Escape(DirectorySeperator.ToString())}|");
+            sb.Append($"{Regex.Escape(AltDirectorySeperator.ToString())}{Regex.Escape(AltDirectorySeperator.ToString())})");
             return sb.ToString();
         }
 
@@ -133,9 +143,9 @@ namespace FakeFileSystem.Services
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(@"^(?:[a-zA-Z0-9\-]+\:|");
-            sb.Append(Regex.Escape(_fileSystem.DirectorySeperator.ToString()));
+            sb.Append(Regex.Escape(DirectorySeperator.ToString()));
             sb.Append(@"{1,2}|");
-            sb.Append(Regex.Escape(_fileSystem.AltDirectorySeperator.ToString()));
+            sb.Append(Regex.Escape(AltDirectorySeperator.ToString()));
             sb.Append(@"{1,2})");
             return sb.ToString();
         }

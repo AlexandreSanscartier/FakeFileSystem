@@ -48,12 +48,12 @@ namespace FakeFileSystem.Services
                     if (!this.DirectoryExists(currentPath))
                     {
                         var currentPathParts = _pathService.SplitPath(currentPath).SkipLast(1);
-                        directory = FindDirectory(_pathService.CombinePath(currentPathParts.SkipLast(1).ToArray())).DirectoryComponent;
+                        directory = FindDirectory(_pathService.CombinePath([.. currentPathParts.SkipLast(1)])).DirectoryComponent;
                         var directoryToAddRecursivelyAdd = _directoryComponentFactory.Create(currentPathParts.Last());
                         directory.Add(directoryToAddRecursivelyAdd);
                     }
                 }
-                directory = FindDirectory(_pathService.CombinePath(pathParts.SkipLast(1).ToArray())).DirectoryComponent;
+                directory = FindDirectory(_pathService.CombinePath([.. pathParts.SkipLast(1)])).DirectoryComponent;
             }
 
             var directoryToAdd = _directoryComponentFactory.Create(directoryName);
@@ -107,12 +107,13 @@ namespace FakeFileSystem.Services
 
 
             if (!directory.GetFileSystemComponents().Any(x => IsFile(x)))
-                return new string[0];
+                return [];
 
             /// TODO Return fully qualified paths instead of names
             return directory.GetFileSystemComponents().Where(x => IsFile(x)).Select(x => x.Name);
         }
 
+        #pragma warning disable IDE0270
         public IDirectoryInfo GetDirectory(string path)
         {
             var directoryInfo = FindDirectory(path);
@@ -123,6 +124,7 @@ namespace FakeFileSystem.Services
 
             return _directoryInfoFactory.Create(directory);
         }
+        
 
         public IEnumerable<string> GetDirectories(string path)
         {
@@ -137,11 +139,12 @@ namespace FakeFileSystem.Services
                 throw new DirectoryNotFoundException($"{path} does not exist");
 
             if(!directory.GetFileSystemComponents().Any(x => IsDirectory(x)))
-                return new string[0];
+                return [];
 
             /// TODO Return fully qualified paths instead of names
             return directory.GetFileSystemComponents().Where(x => IsDirectory(x)).Select(x => x.Name);
         }
+        #pragma warning restore IDE0270
 
         public void SetCurrentDirectory(string path)
         {
@@ -157,8 +160,14 @@ namespace FakeFileSystem.Services
         private IDirectoryInfo? FindDirectory(string path)
         {
             var pathParts = _pathService.SplitPath(path).Where(x => !x.Equals(string.Empty));
-
             var currentDirectory = _pathService.IsPathRooted(path) ? _fileSystem.Root : _currentDirectoryFileSystemComponent;
+            
+            if(pathParts.Count() == 1)
+            {
+                if (currentDirectory.Name != pathParts.First() && _pathService.IsPathRooted(pathParts.First()))
+                    return null;
+            }
+
             try
             {
                 foreach (var pathPart in pathParts)
@@ -177,7 +186,8 @@ namespace FakeFileSystem.Services
             return null;
         }
 
-        private IDirectoryComponent RecursiveFindDirectory(string directoryName, IDirectoryComponent current)
+        #pragma warning disable IDE0270
+        private static IDirectoryComponent RecursiveFindDirectory(string directoryName, IDirectoryComponent current)
         {
             /// TODO Measure the effectiveness of this operation and optimize if needed.
             var subDirectories = current.GetFileSystemComponents().Where(fsc => IsDirectory(fsc));
@@ -189,13 +199,14 @@ namespace FakeFileSystem.Services
 
             return (IDirectoryComponent)directory;
         }
+        #pragma warning restore IDE0270
 
-        private bool IsDirectory(IFileSystemComponent fileSystemComponent)
+        private static bool IsDirectory(IFileSystemComponent fileSystemComponent)
         {
             return fileSystemComponent.GetType().IsAssignableTo(typeof(IDirectoryComponent));
         }
 
-        private bool IsFile(IFileSystemComponent fileSystemComponent)
+        private static bool IsFile(IFileSystemComponent fileSystemComponent)
         {
             return fileSystemComponent.GetType().IsAssignableTo(typeof(IFileComponent));
         }

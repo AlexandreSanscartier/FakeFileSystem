@@ -4,7 +4,7 @@ using FakeFileSystem.CLI.Interfaces.Commands.Models;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Consoles
 {
-    public class RemoveDirectoryConsoleCommand : ICommand
+    public sealed class RemoveDirectoryConsoleCommand : ICommand
     {
         private IConsoleCommandParameters _consoleCommandParameters;
 

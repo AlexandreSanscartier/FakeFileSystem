@@ -5,9 +5,9 @@ using FakeFileSystem.CLI.Interfaces.Commands.Models;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Factories
 {
-    public class DirectoryCommandFactory : IDirectoryCommandFactory
+    public sealed class DirectoryCommandFactory : IDirectoryCommandFactory
     {
-        IDirectoryCommandParameters _directoryCommandParameters;
+        private IDirectoryCommandParameters _directoryCommandParameters;
 
         public DirectoryCommandFactory(IDirectoryCommandParameters directoryCommandParameters)
         {
@@ -40,7 +40,7 @@ namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Factories
 
         public void SetPath(string path)
         {
-            _directoryCommandParameters.SetPath(path);
+            _directoryCommandParameters.Path = path;
         }
 
         private ICommand BuildSetCurrentDirectoryCommand()

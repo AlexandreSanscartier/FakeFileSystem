@@ -4,20 +4,12 @@ namespace FakeFileSystem.CLI.Interfaces.Commands.Models
 {
     public interface IDirectoryCommandParameters
     {
-        IDirectoryService DirectoryService { get; }
+        IDirectoryService DirectoryService { get; set; }
 
-        IPathService PathService { get; }
+        IPathService PathService { get; set; }
 
-        string DirectoryName { get; }
+        string DirectoryName { get; set; }
 
-        string Path { get; }
-
-        void SetDirectoryService(IDirectoryService directoryService);
-
-        void SetPathService(IPathService pathService);
-
-        void SetDirectoryName(string directoryName);
-
-        void SetPath(string path);
+        string Path { get; set; }
     }
 }

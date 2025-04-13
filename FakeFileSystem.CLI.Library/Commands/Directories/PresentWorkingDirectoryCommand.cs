@@ -3,7 +3,7 @@ using FakeFileSystem.Interfaces.Services;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Directories
 {
-    public class PresentWorkingDirectoryCommand : IDirectoryCommand
+    public sealed class PresentWorkingDirectoryCommand : IDirectoryCommand
     {
         private IDirectoryService _directoryService;
 

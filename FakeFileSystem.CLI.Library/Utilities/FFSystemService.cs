@@ -3,15 +3,13 @@ using FakeFileSystem.Interfaces;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Utilities
 {
-    public class FFSystemService : IFFSystemService
+    public sealed class FFSystemService : IFFSystemService
     {
-        private IFFSystem _fakeFileSystem;
+        public IFFSystem FakeFileSystem { get; private set; }
 
-        public IFFSystem FakeFileSystem => _fakeFileSystem;
-
-        public FFSystemService()
+        public FFSystemService(IFFSystem fakeFileSystem)
         {
-            _fakeFileSystem = new InMemoryFFileSystem();
+            FakeFileSystem = fakeFileSystem;
         }
     }
 }
