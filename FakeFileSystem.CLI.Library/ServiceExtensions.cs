@@ -32,6 +32,16 @@ namespace FakeFileSystem.CLI.ConsoleLibrary
             services.AddSingleton<IInputReader, ConsoleInputReader>();
             services.AddSingleton<IOutputWriter, ConsoleOutputWriter>();
 
+            services.AddTransient<IDirectoryCommandParameters, DirectoryCommandParameters>();
+            services.AddTransient<IFileCommandParameters, FileCommandParameters>();
+            services.AddTransient<IConsoleCommandParameters, ConsoleCommandParameters>();
+
+            services.AddSingleton<ICommandRunner, FileSystemCommandRunner>();
+            services.AddTransient<IHeaderComponent, ConsoleHeaderComponent>();
+
+            services.AddSingleton<IFFSystem, InMemoryFFileSystem>();
+            services.AddSingleton<IFFSystemService, FFSystemService>();
+
             services.AddTransient<IDirectoryComponentFactory, DirectoryComponentFactory>();
             services.AddTransient<IFileComponentFactory, FileComponentFactory>();
             services.AddTransient<IMemoryStreamFactory, MemoryStreamFactory>();
@@ -42,21 +52,12 @@ namespace FakeFileSystem.CLI.ConsoleLibrary
             services.AddTransient<IFileCommandFactory, FileCommandFactory>();
             services.AddTransient<IConsoleCommandFactory, ConsoleCommandFactory>();
 
-            services.AddTransient<IPathService, InMemoryPathService>();
-            services.AddTransient<IDirectoryService, InMemoryDirectoryService>();
-            services.AddTransient<IFileService, InMemoryFileService>();
-            services.AddTransient<IFFSystemService, FFSystemService>();
+            services.AddSingleton<IPathService, InMemoryPathService>();
+            services.AddSingleton<IDirectoryService, InMemoryDirectoryService>();
+            services.AddSingleton<IFileService, InMemoryFileService>();
 
             services.AddTransient<IFileSystemDirectorySeperator>(x => new FileSystemDirectorySeperator('\\', '/'));
             services.AddTransient<IFileSystem, FileSystem>();
-            services.AddTransient<IFFSystem, InMemoryFFileSystem>();
-
-            services.AddTransient<IDirectoryCommandParameters, DirectoryCommandParameters>();
-            services.AddTransient<IFileCommandParameters, FileCommandParameters>();
-            services.AddTransient<IConsoleCommandParameters, ConsoleCommandParameters>();
-
-            services.AddTransient<ICommandRunner, FileSystemCommandRunner>();
-            services.AddTransient<IHeaderComponent, ConsoleHeaderComponent>();
 
             return services;
         }

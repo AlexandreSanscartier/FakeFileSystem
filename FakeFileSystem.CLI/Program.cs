@@ -60,9 +60,16 @@ do
 
         if (commandDictionary.TryGetValue(inputParts[0], out Type? consoleCommandType))
         {
-            consoleCommandFactory.SetArguments(argument);
-            command = consoleCommandFactory.Create(consoleCommandType);
-            command.Execute();
+            try
+            {
+                consoleCommandFactory.SetArguments(argument);
+                command = consoleCommandFactory.Create(consoleCommandType);
+                command.Execute();
+            }
+            catch(Exception ex)
+            {
+                consoleOutputWriter.WriteLine($"Error: {ex.Message}");
+            }
         }
 
         switch (inputParts[0])
