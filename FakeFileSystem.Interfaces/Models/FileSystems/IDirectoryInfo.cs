@@ -4,7 +4,7 @@
     // https://docs.microsoft.com/en-us/dotnet/api/system.io.directoryinfo?view=net-6.0 is a sealed class so we will need to mimic as close as possible
     public interface IDirectoryInfo
     {
-        IDirectoryComponent DirectoryComponent { get; }
+        IDirectoryComponent DirectoryComponent { get; } // TODO: Fix this it can't work like this
 
         string FullPath { get; }
     }

@@ -5,6 +5,7 @@ using FakeFileSystem.Interfaces.Factories.FileSystems;
 using FakeFileSystem.Interfaces.Models;
 using FakeFileSystem.Interfaces.Services;
 using FakeFileSystem.Models;
+using FakeFileSystem.Models.FileSystems;
 using FakeFileSystem.Services;
 using Xunit;
 
@@ -21,10 +22,12 @@ namespace FakeFileSystem.Integration.Tests.Services
 
         public InMemoryDirectoryServiceTest()
         {
-            _directoryComponentFactory = new DirectoryComponentFactory();
+            var fileSystemDirectorySeperator = new FileSystemDirectorySeperator();
+            _pathService = new InMemoryPathService(fileSystemDirectorySeperator);
+            _directoryComponentFactory = new DirectoryComponentFactory(_pathService);
+            _fileSystem = new FileSystem(_directoryComponentFactory, fileSystemDirectorySeperator);
             _root = _directoryComponentFactory.Create("C:");
-            _fileSystem = new FileSystem(_root);
-            _pathService = new InMemoryPathService(_fileSystem);
+            _fileSystem.Root = _root;
             _directoryInfoFactory = new InMemoryDirectoryInfoFactory(_pathService);
             _directoryService = new InMemoryDirectoryService(_directoryComponentFactory, _pathService, _fileSystem, _directoryInfoFactory);
         }

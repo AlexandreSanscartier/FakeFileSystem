@@ -4,6 +4,7 @@ using FakeFileSystem.Interfaces.Services;
 using FakeFileSystem.Models;
 using FakeFileSystem.Models.FileSystems;
 using FakeFileSystem.Services;
+using FakeFileSystem.Services.InMemory;
 using Moq;
 using System.IO;
 using System.Text;
@@ -40,9 +41,12 @@ namespace FakeFileSystem.Unit.Tests.Services
             _fileSystemMock = new Mock<IFileSystem>();
             _filePathFactory = new Mock<IFilePathFactory>();
 
-            _fakeFile = new FileComponent("FakeFile.txt", "Test Content");
-            _fakeDir = DirectoryComponent.From("FakeDir");
-            _root = DirectoryComponent.From("C:");
+            _pathServiceMock.Setup(x => x.HasExtension("Fakefile.txt")).Returns(true);
+            var pathService = _pathServiceMock.Object;
+
+            _fakeFile = new FileComponent(pathService, "Fakefile.txt", "Test Content");
+            _fakeDir = new DirectoryComponent(pathService, "FakeDir");
+            _root = new DirectoryComponent(pathService, "C:");
             _root.Add(_fakeDir);
             _root.Add(_fakeFile);
         }
@@ -63,12 +67,15 @@ namespace FakeFileSystem.Unit.Tests.Services
             var pathPartsWithFile = new string[] { "C:", "FakeDir", fileName };
             var pathParts = new string[] { "C:", "FakeDir" };
             var expected = new MemoryStream(Encoding.UTF8.GetBytes(string.Empty));
-            var directoryComponent = DirectoryComponent.From("FakeDir");
             var directoryInfo = new InMemoryDirectoryInfo(_fakeDir, _pathServiceMock.Object);
-            var fileComponent = new FileComponent(fileName, string.Empty);                
+            var fileComponent = new FileComponent(_pathServiceMock.Object, fileName, string.Empty);                
 
             _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(pathPartsWithFile);
             _pathServiceMock.Setup(x => x.CombinePath(pathParts)).Returns(pathWithoutFile);
+            var pathService = _pathServiceMock.Object;
+
+            var directoryComponent = new DirectoryComponent(pathService, "FakeDir");
+
             _directoryServiceMock.Setup(x => x.DirectoryExists(pathWithoutFile)).Returns(true);
             _directoryServiceMock.Setup(x => x.GetDirectory(pathWithoutFile)).Returns(directoryInfo);
             _fileComponentFactoryMock.Setup(x => x.Create("Fakefile.txt")).Returns(fileComponent);
@@ -90,11 +97,11 @@ namespace FakeFileSystem.Unit.Tests.Services
             // Arrange
             var path = @"C:\FakeFile.txt";
             var pathWithoutFile = @"C:\";
-            var fileName = "FakeFile.txt";
+            var fileName = "Fakefile.txt";
             var pathPartsWithFile = new string[] { "C:", fileName };
             var pathParts = new string[] { "C:" };
             var directoryInfo = new InMemoryDirectoryInfo(_root, _pathServiceMock.Object);
-            var fileComponent = new FileComponent(fileName, "Test Content");
+            var fileComponent = new FileComponent(_pathServiceMock.Object, fileName, "Test Content");
 
             _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(pathPartsWithFile);
             _pathServiceMock.Setup(x => x.CombinePath(pathParts)).Returns(pathWithoutFile);
@@ -118,12 +125,12 @@ namespace FakeFileSystem.Unit.Tests.Services
             // Arrange
             var path = @"C:\FakeFile.txt";
             var pathWithoutFile = @"C:\";
-            var fileName = "FakeFile.txt";
+            var fileName = "Fakefile.txt";
             var fileContent = "Test Content";
             var pathPartsWithFile = new string[] { "C:", fileName };
             var pathParts = new string[] { "C:" };
             var directoryInfo = new InMemoryDirectoryInfo(_root, _pathServiceMock.Object);
-            var fileComponent = new FileComponent(fileName, fileContent);
+            var fileComponent = new FileComponent(_pathServiceMock.Object, fileName, fileContent);
             var expected = fileContent;
 
             _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(pathPartsWithFile);
@@ -147,13 +154,13 @@ namespace FakeFileSystem.Unit.Tests.Services
             // Arrange
             var path = @"C:\FakeFile.txt";
             var pathWithoutFile = @"C:\";
-            var fileName = "FakeFile.txt";
+            var fileName = "Fakefile.txt";
             var fileContent = "Test Content";
             var newFileContents = "Test content modified";
             var pathPartsWithFile = new string[] { "C:", fileName };
             var pathParts = new string[] { "C:" };
             var directoryInfo = new InMemoryDirectoryInfo(_root, _pathServiceMock.Object);
-            var fileComponent = new FileComponent(fileName, fileContent);
+            var fileComponent = new FileComponent(_pathServiceMock.Object, fileName, fileContent);
             var expected = fileContent;
 
             _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(pathPartsWithFile);

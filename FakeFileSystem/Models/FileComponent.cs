@@ -1,30 +1,30 @@
 ﻿using FakeFileSystem.Interfaces.Models;
+using FakeFileSystem.Interfaces.Services;
 
 namespace FakeFileSystem.Models
 {
     public class FileComponent : IFileComponent
     {
-        public string Content { get; private set; }
+        private readonly IPathService _pathService;
+
+        public string Content { get; set; }
 
         public string Name { get; private set; }
 
-        public FileComponent(string name)
+        public FileComponent(IPathService pathService, string name)
         {
+            _pathService = pathService;
             Name = name;
             Content = string.Empty;
         }
 
-        public FileComponent(string name, string content)
+        public FileComponent(IPathService pathService, string name, string content)
         {
-            if(!IsFileComponentValid(name) || !DoesFileHaveValidExtension(name))
-                throw new ArgumentException($"{name} is not a valid filename");
+            _pathService = pathService;
             Name = name;
             Content = content;
-        }
-
-        public void SetContent(string content)
-        {
-            Content = content;
+            if (!IsFileComponentValid(name) || !DoesFileHaveValidExtension(name))
+                throw new ArgumentException($"{name} is not a valid filename");
         }
 
         public override bool Equals(object? obj)
@@ -45,14 +45,12 @@ namespace FakeFileSystem.Models
 
         private bool IsFileComponentValid(string name)
         {
-            /// TODO: Remove the dependance an Path.GetInvalidFileNameChars
-            return !(string.IsNullOrEmpty(name) || Path.GetInvalidFileNameChars().Any(c => name.Contains(c)));
+            return !(string.IsNullOrEmpty(name) || _pathService.GetInvalidFileNameChars().Any(c => name.Contains(c)));
         }
 
         private bool DoesFileHaveValidExtension(string name)
         {
-            /// TODO: Remove the dependance an Path.HasExtension
-            return Path.HasExtension(name);
+            return _pathService.HasExtension(name);
         }
 
         public override int GetHashCode()

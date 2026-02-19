@@ -13,7 +13,6 @@ namespace FakeFileSystem.Factories.FileSystems
         {
             _pathService = pathService;
         }
-
         public IDirectoryInfo Create(IDirectoryComponent directoryComponent)
         {
             return new InMemoryDirectoryInfo(directoryComponent, _pathService);

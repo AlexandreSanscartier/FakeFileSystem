@@ -22,6 +22,10 @@
 
         string GetFileNameWithoutExtension(string path);
 
+        char[] GetInvalidFileNameChars();
+
+        char[] GetInvalidPathChars();
+
         bool HasExtension(string fileName);
 
         bool IsPathRooted(string path);

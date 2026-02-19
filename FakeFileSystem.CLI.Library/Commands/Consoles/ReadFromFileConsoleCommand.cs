@@ -4,7 +4,7 @@ using FakeFileSystem.CLI.Interfaces.Commands.Models;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Consoles
 {
-    public class ReadFromFileConsoleCommand : ICommand
+    public sealed class ReadFromFileConsoleCommand : ICommand
     {
         private IConsoleCommandParameters _consoleCommandParameters;
 

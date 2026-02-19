@@ -4,7 +4,7 @@ using FakeFileSystem.CLI.Interfaces.Commands.Models;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Consoles
 {
-    public class PresentWorkingDirectoryConsoleCommand : ICommand
+    public sealed class PresentWorkingDirectoryConsoleCommand : ICommand
     {
         private IConsoleCommandParameters _consoleCommandParameters;
 

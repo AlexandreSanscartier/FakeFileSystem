@@ -1,5 +1,7 @@
 ﻿using FakeFileSystem.Interfaces.Models;
+using FakeFileSystem.Interfaces.Services;
 using FakeFileSystem.Models;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +11,20 @@ namespace FakeFileSystem.Unit.Tests.Models
 {
     public class DirectoryComponentTests
     {
+        private Mock<IPathService> _pathServiceMock;
+
+        public DirectoryComponentTests()
+        {
+            _pathServiceMock = new Mock<IPathService>();
+        }
+
         [Fact]
         public void AddFileSystemComponent_AddsSuccessfully()
         {
             // Arrange
-            var componentToAdd = DirectoryComponent.From("FakeDirectory");
-            var directoryComponent = DirectoryComponent.From(@"C:");
+            var pathService = _pathServiceMock.Object;
+            var componentToAdd = new DirectoryComponent(pathService, "FakeDirectory");
+            var directoryComponent = new DirectoryComponent(pathService, @"C:");
             var expected = new List<IFileSystemComponent>() { componentToAdd };
 
             // Act
@@ -29,8 +39,9 @@ namespace FakeFileSystem.Unit.Tests.Models
         public void AddFileSystemComponent_WhenAlreadyExists_DoesNotAdd()
         {
             // Arrange
-            var componentToAdd = DirectoryComponent.From("FakeDirectory");
-            var directoryComponent = DirectoryComponent.From(@"C:");
+            var pathService = _pathServiceMock.Object;
+            var componentToAdd = new DirectoryComponent(pathService, "FakeDirectory");
+            var directoryComponent = new DirectoryComponent(pathService, @"C:");
             var expected = new List<IFileSystemComponent>() { componentToAdd };
             var expectedCount = 1;
 
@@ -47,8 +58,9 @@ namespace FakeFileSystem.Unit.Tests.Models
         public void AddFileSystemComponent_SetsParent()
         {
             // Arrange
-            var componentToAdd = DirectoryComponent.From("FakeDirectory");
-            var directoryComponent = DirectoryComponent.From(@"C:");
+            var pathService = _pathServiceMock.Object;
+            var componentToAdd = new DirectoryComponent(pathService, "FakeDirectory");
+            var directoryComponent = new DirectoryComponent(pathService, @"C:");
             var expected = directoryComponent;
 
             // Act

@@ -1,6 +1,8 @@
 ﻿using FakeFileSystem.Factories;
 using FakeFileSystem.Interfaces.Factories;
+using FakeFileSystem.Interfaces.Services;
 using FakeFileSystem.Models;
+using Moq;
 using System;
 using System.IO;
 using Xunit;
@@ -10,10 +12,15 @@ namespace FakeFileSystem.Unit.Tests.Factories
     public class DirectoryComponentFactoryTests
     {
         private IDirectoryComponentFactory _directoryComponentFactory;
+        private IPathService _pathService;
 
         public DirectoryComponentFactoryTests()
         { 
-            _directoryComponentFactory = new DirectoryComponentFactory();
+            var pathServiceMock = new Mock<IPathService>();
+            pathServiceMock.Setup(x => x.GetInvalidPathChars()).Returns(['\"','<', '>', '|']);
+            _pathService = pathServiceMock.Object;
+
+            _directoryComponentFactory = new DirectoryComponentFactory(_pathService);
         }
 
         [Fact]
@@ -21,7 +28,7 @@ namespace FakeFileSystem.Unit.Tests.Factories
         {
             // Arrange
             var directoryName = "MyDir";
-            var expected = DirectoryComponent.From(directoryName);
+            var expected = new DirectoryComponent(_pathService, directoryName);
 
             // Act
             var actual = _directoryComponentFactory.Create(directoryName);
@@ -35,7 +42,7 @@ namespace FakeFileSystem.Unit.Tests.Factories
         {
             // Arrange
             var directoryName = "MyDir\\MyDir2\\MyDir3";
-            var expected = DirectoryComponent.From(directoryName);
+            var expected = new DirectoryComponent(_pathService, directoryName);
 
             // Act
             var actual = _directoryComponentFactory.Create(directoryName);
@@ -60,7 +67,7 @@ namespace FakeFileSystem.Unit.Tests.Factories
             // Arrange
             var directoryName = "MyDir";
 
-            foreach (var invalidCharacter in Path.GetInvalidPathChars())
+            foreach (var invalidCharacter in _pathService.GetInvalidPathChars())
             {
                 var invalidDirectoryName = $"{directoryName}{invalidCharacter}";
 

@@ -1,43 +1,38 @@
-﻿using FakeFileSystem.CLI.Interfaces.Commands;
-using FakeFileSystem.CLI.Interfaces.Commands.Factories;
+﻿using FakeFileSystem.CLI.ConsoleLibrary;
 using FakeFileSystem.CLI.ConsoleLibrary.Commands;
-using FakeFileSystem.CLI.ConsoleLibrary.Commands.Factories;
-using FakeFileSystem.CLI.ConsoleLibrary.Commands.Models;
-using FakeFileSystem.CLI.ConsoleLibrary.Commands.Services;
-using FakeFileSystem.CLI.ConsoleLibrary.Services;
-using FakeFileSystem.CLI.ConsoleLibrary.Utilities;
-using FakeFileSystem.CLI.ConsoleLibrary.Components;
 using FakeFileSystem.CLI.ConsoleLibrary.Commands.Consoles;
+using FakeFileSystem.CLI.Interfaces.Commands;
+using FakeFileSystem.CLI.Interfaces.Commands.Factories;
+using FakeFileSystem.CLI.Interfaces.Components;
+using FakeFileSystem.CLI.Interfaces.Services;
+using FakeFileSystem.CLI.Interfaces.Utilities;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-var fakeFileSystem = new FFSystemService().FakeFileSystem;
+var builder = new ConfigurationBuilder();
+var configurationRoot = builder.Build();
+
+using IHost host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((_, services) =>
+        services
+            .RegisterConsoleLibrary()
+    ).Build();
+
+using IServiceScope serviceScope = host.Services.CreateScope();
+IServiceProvider provider = serviceScope.ServiceProvider;
+
+var consoleOutputWriter = provider.GetRequiredService<IOutputWriter>();
+var consoleCommandFactory = provider.GetRequiredService<IConsoleCommandFactory>();
+var headerComponent = provider.GetRequiredService<IHeaderComponent>();
+
+ICommand command = new NullCommand();
+var input = string.Empty;
 var quit = false;
 
-var input = string.Empty;
-
-var consoleInputReader = new ConsoleInputReader();
-var consoleOutputWriter = new ConsoleOutputWriter();
-
-var headerComponent = new ConsoleHeaderComponent(consoleOutputWriter);
 headerComponent.PrintHeader("FakeFileSystem.CLI");
 
-var directoryCommandParameters = new DirectoryCommandParameters(
-    fakeFileSystem.DirectoryService, fakeFileSystem.PathService, string.Empty, string.Empty
-);
-
-var fileCommandParameters = new FileCommandParameters(
-    fakeFileSystem.FileService, string.Empty, string.Empty
-);
-
-IDirectoryCommandFactory directoryCommandFactory = new DirectoryCommandFactory(directoryCommandParameters);
-IFileCommandFactory fileCommandFactory = new FileCommandFactory(fileCommandParameters);
-var commandRunner = new FileSystemCommandRunner();
-
-var consoleCommandParameters = new ConsoleCommandParameters(
-    consoleInputReader, consoleOutputWriter, fakeFileSystem, directoryCommandFactory, fileCommandFactory, commandRunner
-);
-
-IConsoleCommandFactory consoleCommandFactory = new ConsoleCommandFactory(consoleCommandParameters);
-ICommand command = new NullCommand();
+var fakeFileSystem = provider.GetRequiredService<IFFSystemService>().FakeFileSystem;
 
 var commandDictionary = new Dictionary<string, Type>
 {
@@ -63,12 +58,18 @@ do
         var inputParts = input.Split(" ");
         var argument = string.Join(" ", inputParts.Skip(1));
 
-        if (commandDictionary.ContainsKey(inputParts[0]))
+        if (commandDictionary.TryGetValue(inputParts[0], out Type? consoleCommandType))
         {
-            var consoleCommandType = commandDictionary[inputParts[0]];
-            consoleCommandFactory.SetArguments(argument);
-            command = consoleCommandFactory.Create(consoleCommandType);
-            command.Execute();
+            try
+            {
+                consoleCommandFactory.SetArguments(argument);
+                command = consoleCommandFactory.Create(consoleCommandType);
+                command.Execute();
+            }
+            catch(Exception ex)
+            {
+                consoleOutputWriter.WriteLine($"Error: {ex.Message}");
+            }
         }
 
         switch (inputParts[0])

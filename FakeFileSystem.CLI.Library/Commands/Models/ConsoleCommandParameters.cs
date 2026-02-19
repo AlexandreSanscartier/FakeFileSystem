@@ -6,51 +6,37 @@ using FakeFileSystem.Interfaces;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Models
 {
-    public class ConsoleCommandParameters : IConsoleCommandParameters
+    public sealed class ConsoleCommandParameters : IConsoleCommandParameters
     {
-        private IInputReader _inputReader;
+        public IInputReader InputReader { get; private set; }
 
-        private IOutputWriter _outputWriter;
+        public IOutputWriter OutputWriter { get; private set; }
 
-        private IFFSystem _fFSystem;
+        public IFFSystem FFSystem { get; private set; }
 
-        private IDirectoryCommandFactory _directoryCommandFactory;
+        public IDirectoryCommandFactory DirectoryCommandFactory { get; private set; }
 
-        private IFileCommandFactory _fileCommandFactory;
+        public IFileCommandFactory FileCommandFactory { get; private set; }
 
-        private ICommandRunner _commandRunner;
+        public string Argument { get; private set; }
 
-        private string _arguments;
-
-        public IInputReader InputReader => _inputReader;
-
-        public IOutputWriter OutputWriter => _outputWriter;
-
-        public IFFSystem FFSystem => _fFSystem;
-
-        public IDirectoryCommandFactory DirectoryCommandFactory => _directoryCommandFactory;
-
-        public IFileCommandFactory FileCommandFactory => _fileCommandFactory;
-
-        public string Argument => _arguments;
-
-        public ICommandRunner CommandRunner => _commandRunner;
+        public ICommandRunner CommandRunner { get; private set; }
 
         public ConsoleCommandParameters(IInputReader inputReader, IOutputWriter outputWriter, IFFSystem fFSystem, 
             IDirectoryCommandFactory directoryCommandFactory, IFileCommandFactory fileCommandFactory, ICommandRunner commandRunner)
         {
-            _inputReader = inputReader;
-            _outputWriter = outputWriter;
-            _fFSystem = fFSystem;
-            _directoryCommandFactory = directoryCommandFactory;
-            _fileCommandFactory = fileCommandFactory;
-            _commandRunner = commandRunner;
-            _arguments = string.Empty;
+            InputReader = inputReader;
+            OutputWriter = outputWriter;
+            FFSystem = fFSystem;
+            DirectoryCommandFactory = directoryCommandFactory;
+            FileCommandFactory = fileCommandFactory;
+            CommandRunner = commandRunner;
+            Argument = string.Empty;
         }
 
         public void SetArguments(string arguments)
         {
-            _arguments = arguments;
+            Argument = arguments;
         }
     }
 }

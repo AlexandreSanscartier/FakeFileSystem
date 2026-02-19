@@ -1,6 +1,9 @@
 ﻿using FakeFileSystem.Factories;
 using FakeFileSystem.Interfaces.Factories;
+using FakeFileSystem.Interfaces.Models;
+using FakeFileSystem.Interfaces.Services;
 using FakeFileSystem.Models;
+using Moq;
 using System;
 using System.IO;
 using Xunit;
@@ -9,11 +12,11 @@ namespace FakeFileSystem.Unit.Tests.Factories
 {
     public class FileComponentFactoryTests
     {
-        private IFileComponentFactory _fileComponentFactory;
+        private Mock<IPathService> _pathServiceMock;
 
         public FileComponentFactoryTests()
         {
-            _fileComponentFactory = new FileComponentFactory();
+            _pathServiceMock = new Mock<IPathService>();
         }
 
         [Fact]
@@ -21,10 +24,16 @@ namespace FakeFileSystem.Unit.Tests.Factories
         {
             // Arrange
             var fileName = "MyFile.txt";
-            var expected = new FileComponent(fileName, string.Empty);
+
+            _pathServiceMock.Setup(x => x.HasExtension(fileName)).Returns(true);
+            var pathService = _pathServiceMock.Object;
+
+            var fileComponentFactory = new FileComponentFactory(pathService);
+
+            var expected = new FileComponent(pathService, fileName, string.Empty);
 
             // Act
-            var actual = _fileComponentFactory.Create(fileName);
+            var actual = fileComponentFactory.Create(fileName);
 
             // Assert
             Assert.Equal(expected, actual);
@@ -36,10 +45,16 @@ namespace FakeFileSystem.Unit.Tests.Factories
             // Arrange
             var fileName = "MyFile.txt";
             var fileContent = "This is fake file contents";
-            var expected = new FileComponent(fileName, fileContent);
+
+            _pathServiceMock.Setup(x => x.HasExtension(fileName)).Returns(true);
+            var pathService = _pathServiceMock.Object;
+
+            var fileComponentFactory = new FileComponentFactory(pathService);
+
+            var expected = new FileComponent(pathService, fileName, fileContent);
 
             // Act
-            var actual = _fileComponentFactory.Create(fileName, fileContent);
+            var actual = fileComponentFactory.Create(fileName, fileContent);
 
             // Assert
             Assert.Equal(expected, actual);
@@ -50,9 +65,11 @@ namespace FakeFileSystem.Unit.Tests.Factories
         {
             // Arrange
             var fileName = "MyFile";
+            var pathService = _pathServiceMock.Object;
+            var fileComponentFactory = new FileComponentFactory(pathService);
 
             // Assert
-            Assert.Throws<ArgumentException>(() => _fileComponentFactory.Create(fileName));
+            Assert.Throws<ArgumentException>(() => fileComponentFactory.Create(fileName));
         }
 
         [Fact]
@@ -64,9 +81,11 @@ namespace FakeFileSystem.Unit.Tests.Factories
             foreach (var invalidCharacter in Path.GetInvalidFileNameChars())
             {
                 var invalidFileName = $"{invalidCharacter}{fileName}";
+                var pathService = _pathServiceMock.Object;
+                var fileComponentFactory = new FileComponentFactory(pathService);
 
                 // Assert
-                Assert.Throws<ArgumentException>(() => _fileComponentFactory.Create(invalidFileName));
+                Assert.Throws<ArgumentException>(() => fileComponentFactory.Create(invalidFileName));
             }
         }
     }

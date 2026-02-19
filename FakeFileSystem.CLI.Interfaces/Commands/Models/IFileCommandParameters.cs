@@ -6,12 +6,8 @@ namespace FakeFileSystem.CLI.Interfaces.Commands.Models
     {
         IFileService FileService { get; }
 
-        string Path { get; }
+        string Path { get; set; }
 
-        string Contents { get; }
-
-        void SetPath(string path);
-
-        void SetContents(string contents);
+        string Contents { get; set; }
     }
 }

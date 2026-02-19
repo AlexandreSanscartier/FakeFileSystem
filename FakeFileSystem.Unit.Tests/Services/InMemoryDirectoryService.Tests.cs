@@ -1,11 +1,11 @@
-﻿using FakeFileSystem.Interfaces.Factories;
+﻿using FakeFileSystem.Factories.FileSystems;
+using FakeFileSystem.Interfaces.Factories;
 using FakeFileSystem.Interfaces.Factories.FileSystems;
 using FakeFileSystem.Interfaces.Models;
 using FakeFileSystem.Interfaces.Services;
 using FakeFileSystem.Models;
 using FakeFileSystem.Models.FileSystems;
 using FakeFileSystem.Services;
-using FakeFileSystem.Unit.Tests.Mocks;
 using Moq;
 using System.IO;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace FakeFileSystem.Unit.Tests.Services
         private Mock<IFileSystem> _fileSystemMock;
         private Mock<IDirectoryComponentFactory> _directoryComponentFactoryMock;
         private Mock<IDirectoryInfoFactory> _directoryInfoFactoryMock;
-        private Mock<IPathService> _pathServiceMock;
+        private IPathService _pathService;
 
         private IDirectoryComponent _root;
         private IDirectoryComponent _level1;
@@ -29,7 +29,7 @@ namespace FakeFileSystem.Unit.Tests.Services
         {
             _fileSystemMock = new Mock<IFileSystem>();
             _directoryComponentFactoryMock = new Mock<IDirectoryComponentFactory>();
-            _pathServiceMock = new Mock<IPathService>();
+            _pathService = new InMemoryPathService(new FileSystemDirectorySeperator());
             _directoryInfoFactoryMock = new Mock<IDirectoryInfoFactory>();
             /*
              * TODO: Put this in a mock file that mocks different file system configurations.
@@ -42,14 +42,14 @@ namespace FakeFileSystem.Unit.Tests.Services
              *      - FakeDir2C
              *      - FakeFile.txt
              **/
-            _root = DirectoryComponent.From(@"C:");
-            _level1 = DirectoryComponent.From("FakeDir");
-            _level2 = DirectoryComponent.From("FakeDir2");
-            var level2a = DirectoryComponent.From("FakeDir2A");
-            var level2b = DirectoryComponent.From("FakeDir2B");
-            var level2c = DirectoryComponent.From("FakeDir2C");
-            var level2File = new FileComponent("FakeFile.txt", "Fake content");
-            _level3 = DirectoryComponent.From("FakeDir3");
+            _root = new DirectoryComponent(_pathService, @"C:");
+            _level1 = new DirectoryComponent(_pathService, "FakeDir");
+            _level2 = new DirectoryComponent(_pathService, "FakeDir2");
+            var level2a = new DirectoryComponent(_pathService, "FakeDir2A");
+            var level2b = new DirectoryComponent(_pathService, "FakeDir2B");
+            var level2c = new DirectoryComponent(_pathService, "FakeDir2C");
+            var level2File = new FileComponent(_pathService, "FakeFile.txt", "Fake content");
+            _level3 = new DirectoryComponent(_pathService, "FakeDir3");
             _level1.Add(_level2);
             _level1.Add(level2a);
             _level1.Add(level2b);
@@ -61,8 +61,9 @@ namespace FakeFileSystem.Unit.Tests.Services
 
         private IDirectoryService BuildInMemoryDirectoryService()
         {
-            return new InMemoryDirectoryService(_directoryComponentFactoryMock.Object, _pathServiceMock.Object,
-                _fileSystemMock.Object, _directoryInfoFactoryMock.Object);
+            var directoryInfoFactory = new InMemoryDirectoryInfoFactory(_pathService);
+            return new InMemoryDirectoryService(_directoryComponentFactoryMock.Object, _pathService,
+                _fileSystemMock.Object, directoryInfoFactory);
         }
 
         [Fact]
@@ -70,29 +71,30 @@ namespace FakeFileSystem.Unit.Tests.Services
         {
             // Arrange
             var directoryName = "FakeDir4";
-            var directoryToAdd = DirectoryComponent.From(directoryName);
-            var directoryInfo = new InMemoryDirectoryInfo(directoryToAdd, _pathServiceMock.Object);
             var path = @"C:\FakeDir\FakeDir2\FakeDir3\FakeDir4";
             var pathWithoutNewDirectory = @"C:\FakeDir\FakeDir2\FakeDir3";
             var splitPath = new string[] { "C:", "FakeDir", "FakeDir2", "FakeDir3", "FakeDir4" };
-            var splitPathWithoutNewDirectory = new string[] { "C:", "FakeDir", "FakeDir2", "FakeDir3" };
-            var parentDirectory = DirectoryComponent.From(splitPath.SkipLast(1).Last());
-            var parentDirectoryInfo = new InMemoryDirectoryInfo(parentDirectory, _pathServiceMock.Object);
-            var rootDirectory = DirectoryComponent.From(splitPath.First());
-            var rootDirectoryInfo = new InMemoryDirectoryInfo(rootDirectory, _pathServiceMock.Object);
+            var splitPathWithoutNewDirectory = new string[] { "C:", "FakeDir", "FakeDir2", "FakeDir3" };            
+            var expectedParentName = "FakeDir3";
+
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
+
+            var directoryToAdd = new DirectoryComponent(_pathService, directoryName);
+            directoryToAdd.SetParent(_level3);
+
+            var parentDirectory = new DirectoryComponent(_pathService, splitPath.SkipLast(1).Last());
+            var rootDirectory = new DirectoryComponent(_pathService, splitPath.First());
+
+            var directoryInfo = new InMemoryDirectoryInfo(directoryToAdd, _pathService);
+            var rootDirectoryInfo = new InMemoryDirectoryInfo(rootDirectory, _pathService);
+            var parentDirectoryInfo = new InMemoryDirectoryInfo(parentDirectory, _pathService);            
+
             _directoryComponentFactoryMock.Setup(x => x.Create(directoryName)).Returns(directoryToAdd);
             _directoryInfoFactoryMock.Setup(x => x.Create(directoryToAdd)).Returns(directoryInfo);
             _directoryInfoFactoryMock.Setup(x => x.Create(parentDirectory)).Returns(parentDirectoryInfo);
-            _directoryInfoFactoryMock.Setup(x => x.Create(rootDirectory)).Returns(rootDirectoryInfo);            
-            _pathServiceMock.Setup(x => x.IsPathRooted(splitPath.First())).Returns(true);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
-            _pathServiceMock.Setup(x => x.SplitPath(pathWithoutNewDirectory)).Returns(splitPathWithoutNewDirectory);
-            _pathServiceMock.Setup(x => x.CombinePath(splitPathWithoutNewDirectory)).Returns(pathWithoutNewDirectory);
-            var expected = directoryInfo;
-            var expectedParentName = "FakeDir3";
+            _directoryInfoFactoryMock.Setup(x => x.Create(rootDirectory)).Returns(rootDirectoryInfo);
 
-            // directory = FindDirectory(_pathService.CombinePath(currentPathParts.SkipLast(1).ToArray())).DirectoryComponent;
+            var expected = directoryInfo;
 
             // Act
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
@@ -109,11 +111,11 @@ namespace FakeFileSystem.Unit.Tests.Services
             // Arrange
             var path = @"C:\FakeDir\FakeDir2\FakeDir3";
             var splitPath = new string[] { "C:", "FakeDir", "FakeDir2", "FakeDir3" };
-            var directory = DirectoryComponent.From(splitPath.Last());
-            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathServiceMock.Object);
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
-            _pathServiceMock.Setup(x => x.IsPathRooted(splitPath.First())).Returns(true);
+
+            var directory = new DirectoryComponent(_pathService, splitPath.Last());
+            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathService);
+
             _directoryInfoFactoryMock.Setup(x => x.Create(directory)).Returns(directoryInfo);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
 
@@ -130,10 +132,11 @@ namespace FakeFileSystem.Unit.Tests.Services
             // Arrange
             var path = @"FakeDir";
             var splitPath = new string[] { "FakeDir" };
-            var directory = DirectoryComponent.From(path);
-            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathServiceMock.Object);
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
+
+            var directory = new DirectoryComponent(_pathService, path);
+            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathService);
+
             _directoryInfoFactoryMock.Setup(x => x.Create(directory)).Returns(directoryInfo);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
 
@@ -151,7 +154,6 @@ namespace FakeFileSystem.Unit.Tests.Services
             var path = @"FakeDir2";
             var splitPath = new string[] { "FakeDir2" };
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
 
             // Act
@@ -168,8 +170,6 @@ namespace FakeFileSystem.Unit.Tests.Services
             var path = @"D:\";
             var splitPath = new string[] { "D:" };
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
-            _pathServiceMock.Setup(x => x.IsPathRooted(path)).Returns(true);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
 
             // Act
@@ -186,11 +186,8 @@ namespace FakeFileSystem.Unit.Tests.Services
             var path = @"C:\FakeDir\FakeDir2";
             var splitPath = new string[] { "C:", "FakeDir", "FakeDir2" };
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
-            _pathServiceMock.Setup(x => x.IsPathRooted(splitPath.First())).Returns(true);
-            _pathServiceMock.Setup(x => x.CombinePath(splitPath)).Returns(path);
 
-            var directoryInfo = new InMemoryDirectoryInfo(_level2, _pathServiceMock.Object);
+            var directoryInfo = new InMemoryDirectoryInfo(_level2, _pathService);
             _directoryInfoFactoryMock.Setup(x => x.Create(_level2)).Returns(directoryInfo);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
             var expected = @"C:\FakeDir\FakeDir2";
@@ -210,7 +207,6 @@ namespace FakeFileSystem.Unit.Tests.Services
             var path = @"C:\FakeDir1\FakeDir2";
             var splitPath = new string[] { "C:", "FakeDir1", "FakeDir2" };
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
 
             // Assert
@@ -223,10 +219,8 @@ namespace FakeFileSystem.Unit.Tests.Services
             // Arrange
             var path = @"C:\FakeDir";
             var splitPath = new string[] { "C:", "FakeDir" };
-            var directoryInfo = new InMemoryDirectoryInfo(_level1, _pathServiceMock.Object);
+            var directoryInfo = new InMemoryDirectoryInfo(_level1, _pathService);
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
-            _pathServiceMock.Setup(x => x.IsPathRooted(splitPath.First())).Returns(true);
             _directoryInfoFactoryMock.Setup(x => x.Create(_level1)).Returns(directoryInfo);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
             var expected = new string[] { "FakeDir2", "FakeDir2A", "FakeDir2B", "FakeDir2C" };
@@ -244,10 +238,8 @@ namespace FakeFileSystem.Unit.Tests.Services
             // Arrange
             var path = @"C:\FakeDir\FakeDir2\FakeDir3";
             var splitPath = new string[] { "C:", "FakeDir", "FakeDir2", "FakeDir3" };
-            var directoryInfo = new InMemoryDirectoryInfo(_level3, _pathServiceMock.Object);
+            var directoryInfo = new InMemoryDirectoryInfo(_level3, _pathService);
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
-            _pathServiceMock.Setup(x => x.IsPathRooted(splitPath.First())).Returns(true);
             _directoryInfoFactoryMock.Setup(x => x.Create(_level3)).Returns(directoryInfo);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
             var expected = new string[0];
@@ -265,11 +257,11 @@ namespace FakeFileSystem.Unit.Tests.Services
             // Arrange
             var path = @"C:\FakeDir\FakeDir2\FakeDir3\FakeDir4";
             var splitPath = new string[] { "C:", "FakeDir", "FakeDir2", "FakeDir3", "FakeDir4" };
-            var directory = DirectoryComponent.From(splitPath.Last());
-            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathServiceMock.Object);
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
-            _pathServiceMock.Setup(x => x.IsPathRooted(splitPath.First())).Returns(true);
+
+            var directory = new DirectoryComponent(_pathService, splitPath.Last());
+            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathService);
+
             _directoryInfoFactoryMock.Setup(x => x.Create(directory)).Returns(directoryInfo);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
             var expected = new string[0];
@@ -284,10 +276,8 @@ namespace FakeFileSystem.Unit.Tests.Services
             // Arrange
             var path = @"C:\FakeDir";
             var splitPath = new string[] { "C:", "FakeDir" };
-            var directoryInfo = new InMemoryDirectoryInfo(_level1, _pathServiceMock.Object);
+            var directoryInfo = new InMemoryDirectoryInfo(_level1, _pathService);
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
-            _pathServiceMock.Setup(x => x.IsPathRooted(splitPath.First())).Returns(true);
             _directoryInfoFactoryMock.Setup(x => x.Create(_level1)).Returns(directoryInfo);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
             var expected = new string[] { "FakeFile.txt" };
@@ -305,11 +295,11 @@ namespace FakeFileSystem.Unit.Tests.Services
             // Arrange
             var path = @"C:\FakeDir\FakeDir2\FakeDir3";
             var splitPath = new string[] { "C:", "FakeDir", "FakeDir2", "FakeDir3" };
-            var directory = DirectoryComponent.From(splitPath.Last());
-            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathServiceMock.Object);
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
-            _pathServiceMock.Setup(x => x.IsPathRooted(splitPath.First())).Returns(true);
+
+            var directory = new DirectoryComponent(_pathService, splitPath.Last());
+            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathService);
+
             _directoryInfoFactoryMock.Setup(x => x.Create(directory)).Returns(directoryInfo);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
             var expected = new string[0];
@@ -327,11 +317,11 @@ namespace FakeFileSystem.Unit.Tests.Services
             // Arrange
             var path = @"C:\FakeDir\FakeDir2\FakeDir3\FakeDir4";
             var splitPath = new string[] { "C:", "FakeDir", "FakeDir2", "FakeDir3", "FakeDir4" };
-            var directory = DirectoryComponent.From(splitPath.Last());
-            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathServiceMock.Object    );
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
-            _pathServiceMock.Setup(x => x.IsPathRooted(splitPath.First())).Returns(true);
+                 
+            var directory = new DirectoryComponent(_pathService, splitPath.Last());
+            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathService);
+
             _directoryInfoFactoryMock.Setup(x => x.Create(directory)).Returns(directoryInfo);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
             var expected = new string[0];
@@ -346,45 +336,42 @@ namespace FakeFileSystem.Unit.Tests.Services
             // Arrange
             var path = @"C:\FakeDir\FakeDir2\FakeDir3";
             var splitPath = new string[] { "C:", "FakeDir", "FakeDir2", "FakeDir3" };
-            var parentDirectory = DirectoryComponent.From(splitPath.SkipLast(1).Last());
-            var directory = DirectoryComponent.From(splitPath.Last());
-            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathServiceMock.Object);
-            parentDirectory.Add(directory);
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
-            _pathServiceMock.Setup(x => x.IsPathRooted(splitPath.First())).Returns(true);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
+
+            var directory = new DirectoryComponent(_pathService, splitPath.Last());
+            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathService);
+
             _directoryInfoFactoryMock.Setup(x => x.Create(directory)).Returns(directoryInfo);
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
 
             // Act
             inMemoryDirectoryService.DeleteDirectory(path);
+            var currentDirectoryComponents = inMemoryDirectoryService.GetDirectory(@"C:\FakeDir\FakeDir2").DirectoryComponent.GetFileSystemComponents();
 
             // Assert
-            Assert.Empty(parentDirectory.GetFileSystemComponents());
+            Assert.Empty(currentDirectoryComponents);
         }
 
         [Fact]
         public void DeleteDirectory_WhenPathExistsAndRecursive_DeletesSuccessfully()
         {
             // Arrange
-            var path = @"C:\FakeDir\FakeDir2";
-            var splitPath = new string[] { "C:", "FakeDir", "FakeDir2" };
-            var parentDirectory = DirectoryComponent.From(splitPath.SkipLast(1).Last());
-            var directory = DirectoryComponent.From(splitPath.Last());
-            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathServiceMock.Object);
-            var parentDirectoryInfo = new InMemoryDirectoryInfo(parentDirectory, _pathServiceMock.Object);
-            parentDirectory.Add(directory);
+            var path = @"C:\FakeDir";
+            var splitPath = new string[] { "C:", "FakeDir" };
             _fileSystemMock.Setup(x => x.Root).Returns(_root);
+
+            var directory = new DirectoryComponent(_pathService, splitPath.Last());
+            var directoryInfo = new InMemoryDirectoryInfo(directory, _pathService);
             _directoryInfoFactoryMock.Setup(x => x.Create(directory)).Returns(directoryInfo);
-            _pathServiceMock.Setup(x => x.SplitPath(path)).Returns(splitPath);
-            _pathServiceMock.Setup(x => x.IsPathRooted(splitPath.First())).Returns(true);
+
             var inMemoryDirectoryService = BuildInMemoryDirectoryService();
 
             // Act
             inMemoryDirectoryService.DeleteDirectory(path, true);
+            var currentDirectoryComponents = inMemoryDirectoryService.GetDirectory(@"C:").DirectoryComponent.GetFileSystemComponents();
 
             // Assert
-            Assert.Empty(parentDirectory.GetFileSystemComponents());
+            Assert.Empty(currentDirectoryComponents);
         }
     }
 }

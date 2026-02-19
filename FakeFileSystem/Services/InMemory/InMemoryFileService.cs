@@ -3,7 +3,7 @@ using FakeFileSystem.Interfaces.Models;
 using FakeFileSystem.Interfaces.Services;
 using FakeFileSystem.Interfaces.Models.FileSystems;
 
-namespace FakeFileSystem.Services
+namespace FakeFileSystem.Services.InMemory
 {
     public class InMemoryFileService : IFileService
     {
@@ -80,7 +80,7 @@ namespace FakeFileSystem.Services
             }
 
             var file = ExtractFileFromDirectory(directoryInfo, filePath.FileName);
-            file.SetContent(contents);
+            file.Content = contents;
         }
 
         private IFileComponent ExtractFileFromDirectory(IDirectoryInfo directoryInfo, string fileName)

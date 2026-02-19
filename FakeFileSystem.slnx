@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/CLI/">
+    <Project Path="FakeFileSystem.CLI/FakeFileSystem.CLI.csproj" />
+  </Folder>
+  <Folder Name="/CLI/Library/">
+    <Project Path="FakeFileSystem.CLI.Interfaces/FakeFileSystem.CLI.Interfaces.csproj" />
+    <Project Path="FakeFileSystem.CLI.Library/FakeFileSystem.CLI.ConsoleLibrary.csproj" />
+  </Folder>
+  <Folder Name="/CLI/Tests/" />
+  <Folder Name="/Examples/">
+    <Project Path="FakeFileSystem.Examples/FakeFileSystem.Examples.csproj" />
+  </Folder>
+  <Folder Name="/Library/">
+    <Project Path="FakeFileSystem.Interfaces/FakeFileSystem.Interfaces.csproj" />
+    <Project Path="FakeFileSystem/FakeFileSystem.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="README.MD" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="FakeFileSystem.Integration.Tests/FakeFileSystem.Integration.Tests.csproj" />
+    <Project Path="FakeFileSystem.Unit.Tests/FakeFileSystem.Unit.Tests.csproj" />
+  </Folder>
+</Solution>

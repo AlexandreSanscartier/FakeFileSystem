@@ -3,7 +3,7 @@ using FakeFileSystem.CLI.Interfaces.Commands.Services;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Services
 {
-    public class FileSystemCommandRunner : ICommandRunner
+    public sealed class FileSystemCommandRunner : ICommandRunner
     {
         public void Execute(ICommand command)
         {
@@ -16,7 +16,7 @@ namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Services
             if (command.GetType().IsAssignableTo(typeof(ICommandWithResult<T>)))
                 return ((ICommandWithResult<T>)command).Result;
 
-            throw new Exception();
+            throw new Exception(); // TODO: Create a more detailed Exception
             //return default;
         }
     }

@@ -1,5 +1,7 @@
 ﻿using FakeFileSystem.Interfaces.Models;
+using FakeFileSystem.Interfaces.Services;
 using FakeFileSystem.Models;
+using Moq;
 using System.Collections.Generic;
 
 namespace FakeFileSystem.Unit.Tests.Mocks
@@ -7,10 +9,12 @@ namespace FakeFileSystem.Unit.Tests.Mocks
     public class FileSystemTestMock
     {
         private IDictionary<string, IDirectoryComponent> _directoryComponentDictionary;
+        private readonly IPathService _pathService;
 
         public FileSystemTestMock()
         {
             _directoryComponentDictionary = new Dictionary<string, IDirectoryComponent>();
+            _pathService = Mock.Of<IPathService>();
         }
 
         /*
@@ -24,14 +28,14 @@ namespace FakeFileSystem.Unit.Tests.Mocks
          */
         public void InitializeBasicFileSystem()
         {
-            var root = DirectoryComponent.From(@"C:");
-            var level1 = DirectoryComponent.From("FakeDir");
-            var level2 = DirectoryComponent.From("FakeDir2");
-            var level2a = DirectoryComponent.From("FakeDir2A");
-            var level2b = DirectoryComponent.From("FakeDir2B");
-            var level2c = DirectoryComponent.From("FakeDir2C");
-            var level2File = new FileComponent("FakeFile.txt", "Fake content");
-            var level3 = DirectoryComponent.From("FakeDir3");
+            var root = new DirectoryComponent(_pathService, @"C:");
+            var level1 = new DirectoryComponent(_pathService, "FakeDir");
+            var level2 = new DirectoryComponent(_pathService, "FakeDir2");
+            var level2a = new DirectoryComponent(_pathService, "FakeDir2A");
+            var level2b = new DirectoryComponent(_pathService, "FakeDir2B");
+            var level2c = new DirectoryComponent(_pathService, "FakeDir2C");
+            var level2File = new FileComponent(_pathService, "FakeFile.txt", "Fake content");
+            var level3 = new DirectoryComponent(_pathService, "FakeDir3");
             level1.Add(level2);
             level1.Add(level2a);
             level1.Add(level2b);

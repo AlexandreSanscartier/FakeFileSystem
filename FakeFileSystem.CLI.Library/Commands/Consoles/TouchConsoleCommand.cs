@@ -4,7 +4,7 @@ using FakeFileSystem.CLI.Interfaces.Commands.Models;
 
 namespace FakeFileSystem.CLI.ConsoleLibrary.Commands.Consoles
 {
-    public class TouchConsoleCommand : IConsoleCommandWithResult<Stream?>
+    public sealed class TouchConsoleCommand : IConsoleCommandWithResult<Stream?>
     {
         private IConsoleCommandParameters _consoleCommandParameters;
 
