@@ -13,7 +13,6 @@ Probably not, but feel free to log any issues you have and I'll get to them as s
 ## What problem does this solve?
 
 - You want to write unit tests for functions that manipulate folders / files.
-- You want to write integration tests, but don't want to have to clean up folders / files created on disk.
 - You want to write a CLI that interacts with a virtual file system, but don't have time to write your own.
 - I was looking for a project to overengineer and this seemed like a good candidate.
 

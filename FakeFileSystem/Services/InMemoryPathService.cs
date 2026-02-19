@@ -1,5 +1,4 @@
-﻿using FakeFileSystem.Interfaces.Models;
-using FakeFileSystem.Interfaces.Models.FileSystems;
+﻿using FakeFileSystem.Interfaces.Models.FileSystems;
 using FakeFileSystem.Interfaces.Services;
 using System.Text;
 using System.Text.RegularExpressions;
