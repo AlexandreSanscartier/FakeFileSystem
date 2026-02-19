@@ -4,6 +4,7 @@ using FakeFileSystem.Interfaces.Services;
 using FakeFileSystem.Models;
 using FakeFileSystem.Models.FileSystems;
 using FakeFileSystem.Services;
+using FakeFileSystem.Services.InMemory;
 using Moq;
 using System.IO;
 using System.Text;

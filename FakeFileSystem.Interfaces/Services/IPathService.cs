@@ -22,9 +22,9 @@
 
         string GetFileNameWithoutExtension(string path);
 
-        string[] GetInvalidFileNameChars();
+        char[] GetInvalidFileNameChars();
 
-        string[] GetInvalidPathChars();
+        char[] GetInvalidPathChars();
 
         bool HasExtension(string fileName);
 

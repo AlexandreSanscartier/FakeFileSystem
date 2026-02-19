@@ -84,30 +84,16 @@ namespace FakeFileSystem.Services
             var fileNameWithoutExtension = string.Join('.', fileNameParts.SkipLast(1));
             return fileNameWithoutExtension;
         }
-        public string[] GetInvalidFileNameChars()
-        {
-            return [];
-        }
+        public char[] GetInvalidFileNameChars() => [];
 
-        public string[] GetInvalidPathChars()
-        {
-            return [];
-        }
+        public char[] GetInvalidPathChars() => [];
 
-        public bool HasExtension(string fileName)
-        {
-            return Regex.IsMatch(fileName, @"(?:\.[a-zA-Z0-9\-_]+)$");
-        }
+        public bool HasExtension(string fileName) => Regex.IsMatch(fileName, @"(?:\.[a-zA-Z0-9\-_]+)$");
 
-        public bool IsPathFullyQualified(string path)
-        {
-            return Regex.IsMatch(path, _PathFullyQualifiedRegex);
-        }
+        public bool IsPathFullyQualified(string path) => Regex.IsMatch(path, _PathFullyQualifiedRegex);
+        
 
-        public bool IsPathRooted(string path)
-        {
-            return Regex.IsMatch(path, _PathRootedRegex);
-        }
+        public bool IsPathRooted(string path) => Regex.IsMatch(path, _PathRootedRegex);
 
         public string[] SplitPath(string path)
         {

@@ -17,7 +17,7 @@ namespace FakeFileSystem.Unit.Tests.Factories
         public DirectoryComponentFactoryTests()
         { 
             var pathServiceMock = new Mock<IPathService>();
-            pathServiceMock.Setup(x => x.GetInvalidPathChars()).Returns(["\"","<", ">", "|"]);
+            pathServiceMock.Setup(x => x.GetInvalidPathChars()).Returns(['\"','<', '>', '|']);
             _pathService = pathServiceMock.Object;
 
             _directoryComponentFactory = new DirectoryComponentFactory(_pathService);

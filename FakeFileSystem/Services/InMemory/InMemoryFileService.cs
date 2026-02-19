@@ -3,7 +3,7 @@ using FakeFileSystem.Interfaces.Models;
 using FakeFileSystem.Interfaces.Services;
 using FakeFileSystem.Interfaces.Models.FileSystems;
 
-namespace FakeFileSystem.Services
+namespace FakeFileSystem.Services.InMemory
 {
     public class InMemoryFileService : IFileService
     {
